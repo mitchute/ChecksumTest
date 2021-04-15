@@ -60,9 +60,6 @@ std::string bitsetAddFloats(std::vector<double> &vals, double const &precision) 
 
 struct Material {
 
-	// must match the number of values in this struct to include in the checksum
-	constexpr static int numPropsToUseInChecksum = 3;
-
 	double conductivity;
 	double density;
 	double specificHeat;
@@ -77,9 +74,6 @@ struct Material {
 };
 
 struct Construction {
-
-	// must match the number of values in this struct to include in the checksum
-	constexpr static int numPropsToUseInChecksum = 1;
 
 	double resistance;
 	std::vector<Material> materials;
