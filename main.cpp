@@ -172,8 +172,56 @@ int main() {
 
 	std::cout << "Unique values: " << uniqueCount << std::endl;
 
-	assert(true);
+	// verify first set of results
+	assert(uniqueCount == 5);
 	assert(cs1 == "0000000000010111010100111000000101111000011000110011100000000000");
+	assert(cs2 == "0000000000010111010101000110111011110101001000000001000000000000");
+	assert(cs3 == "0000000000000001000011000100110100001010001101010111000000000000");
+	assert(cs4 == "0000000000010111010100101001001111111011101001100101110001101010");
+	assert(cs5 == "0000000000010111010100101001001111111011101001100101110000000100");
+
+	// test rounding
+	double testVal = 1.0;
+	auto f = roundWithPrecision_to_ullong(testVal, 1E0);
+	assert(f == 1);
+
+	f = roundWithPrecision_to_ullong(testVal, 1E1);
+	assert(f == 10);
+
+	f = roundWithPrecision_to_ullong(testVal, 1E2);
+	assert(f == 100);
+
+	testVal = 3.14159265358979323846;
+	f = roundWithPrecision_to_ullong(testVal, 1E0);
+	assert(f == 3);
+
+	f = roundWithPrecision_to_ullong(testVal, 1E1);
+	assert(f == 31);
+
+	f = roundWithPrecision_to_ullong(testVal, 1E2);
+	assert(f == 314);
+
+	f = roundWithPrecision_to_ullong(testVal, 1E3);
+	assert(f == 3142);
+
+	f = roundWithPrecision_to_ullong(testVal, 1E4);
+	assert(f == 31416);
+
+	// test bitsetAddFloats
+	std::vector<double> v = {1.0, 2.0};
+
+	// 1 + 2 = 3 -> 0b11
+	auto g = bitsetAddFloats(v, 1E0);
+	assert(g == "0000000000000000000000000000000000000000000000000000000000000011");
+
+	// 10 + 20 = 30 -> 0b11110
+	g = bitsetAddFloats(v, 1E1);
+	assert(g == "0000000000000000000000000000000000000000000000000000000000011110");
+
+	// 100 + 200 + 300 = 600 -> 0b1001011000
+	v.push_back(3.0);
+	g = bitsetAddFloats(v, 1E2);
+	assert(g == "0000000000000000000000000000000000000000000000000000001001011000");
 
 	return 0;
 }
