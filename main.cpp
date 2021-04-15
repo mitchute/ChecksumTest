@@ -99,18 +99,20 @@ std::string constructionChecksum(Construction const &construction) {
 	constexpr double densityChecksumOffset = 13;
 	constexpr double specificHeatChecksumOffset = 29;
 	constexpr double resistanceChecksumOffset = 59;
-
+	constexpr double layerOffset = 17;
 	auto &materials = construction.materials;
 
 	// collect material values for checksum
 	std::vector<double> checksumInputs;
+	int layer = 0;
 	for (auto &m : materials) {
-		checksumInputs.push_back(m.conductivity * conductivityChecksumOffset);
-		checksumInputs.push_back(m.density * densityChecksumOffset);
-		checksumInputs.push_back(m.specificHeat * specificHeatChecksumOffset);
+		++layer;
+		checksumInputs.push_back(m.conductivity * conductivityChecksumOffset * layer * layerOffset);
+		checksumInputs.push_back(m.density * densityChecksumOffset * layer * layerOffset);
+		checksumInputs.push_back(m.specificHeat * specificHeatChecksumOffset * layer * layerOffset);
 	}
 
-	// collect
+	// collect construction values for checksum
 	checksumInputs.push_back(construction.resistance * resistanceChecksumOffset);
 
 	constexpr double precision = 1E9;
@@ -127,22 +129,48 @@ int main() {
 	std::vector<double> toChecksum = {testVal1, testVal2};
 	const double precision = 1E0;
 	std::string cs = bitsetAddFloats(toChecksum, precision);
+	std::cout << "Test: " << testVal1 << " + " << testVal2 << " = " << testVal1 + testVal2 << std::endl;
 	std::cout << cs << std::endl;
 
 	// test materials
-	Material m1 = Material(10.0, 1000.0, 3990.0);// sum: 5000
-	Material m2 = Material(20.0, 990.0, 3990.0); // sum: 5000
+	Material m1 = Material(10.0, 1000.0, 3990.0);               // sum: 5000
+	Material m2 = Material(20.0, 990.0, 3990.0);                // sum: 5000
+	Material m3 = Material(20.000000001, 990.0, 3989.999999999);// sum: 5000
+	Material m4 = Material(20.0, 990.000000001, 3989.999999999);// sum: 5000
 
-	std::vector<Material> materials = {m1, m2};
-	std::vector<Material> materialsReversed = {m2, m1};
+	std::vector<Material> matSet1 = {m1, m2};
+	std::vector<Material> matSet1Reversed = {m2, m1};
+	std::vector<Material> matSet2 = {m3, m4};
+	std::vector<Material> matSet2Reversed = {m4, m3};
 
 	// test constructions
-	Construction c1 = Construction(materials);
-	Construction c2 = Construction(materialsReversed);
+	Construction c1 = Construction(matSet1);
+	Construction c2 = Construction(matSet1Reversed);
 	Construction c3 = Construction(5000);// resistance = 5000
-	std::cout << constructionChecksum(c1) << std::endl;
-	std::cout << constructionChecksum(c2) << std::endl;
-	std::cout << constructionChecksum(c3) << std::endl;
+	Construction c4 = Construction(matSet2);
+	Construction c5 = Construction(matSet2Reversed);
+
+	std::string cs1 = constructionChecksum(c1);
+	std::string cs2 = constructionChecksum(c2);
+	std::string cs3 = constructionChecksum(c3);
+	std::string cs4 = constructionChecksum(c4);
+	std::string cs5 = constructionChecksum(c5);
+
+	std::vector<std::string> allChecksum = {cs1, cs2, cs3, cs4, cs5};
+
+	std::sort(allChecksum.begin(), allChecksum.end());
+	int uniqueCount = std::unique(allChecksum.begin(), allChecksum.end()) - allChecksum.begin();
+
+	std::cout << std::endl;
+	std::cout << "Test Constructions Checksum" << std::endl;
+	std::cout << cs1 << std::endl;
+	std::cout << cs2 << std::endl;
+	std::cout << cs3 << std::endl;
+	std::cout << cs4 << std::endl;
+	std::cout << cs5 << std::endl;
+	std::cout << std::endl;
+
+	std::cout << "Unique values: " << uniqueCount << std::endl;
 
 	return 0;
 }
