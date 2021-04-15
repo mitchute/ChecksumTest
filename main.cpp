@@ -1,8 +1,8 @@
 #include <bitset>
+#include <cassert>
 #include <iostream>
 #include <numeric>
 #include <vector>
-
 
 unsigned long long roundWithPrecision_to_ullong(double &x, double const &precision) {
 	// rounds to unsigned long long after multiplying by precision
@@ -171,6 +171,9 @@ int main() {
 	std::cout << std::endl;
 
 	std::cout << "Unique values: " << uniqueCount << std::endl;
+
+	assert(true);
+	assert(cs1 == "0000000000010111010100111000000101111000011000110011100000000000");
 
 	return 0;
 }

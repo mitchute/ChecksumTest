@@ -1,0 +1,20 @@
+name: Build and Test
+on: [push]
+jobs:
+  linux_build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Create Build Directory
+        run: cmake -E make_directory ./build/
+      - name: Configure CMake
+        working-directory: ./build
+        shell: bash
+        run: cmake -DCMAKE_BUILD_TYPE=Release ../
+      - name: Build
+        working-directory: ./build
+        shell: bash
+        run: cmake --build . -j 2
+      - name: Run Tests
+        working-directory: ./build
+        run: ctest
